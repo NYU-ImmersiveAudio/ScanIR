@@ -34,6 +34,7 @@ Once all required components are installed just download the git and open the fo
 ### Hardware required for ARM (Automated Rotating Mount) system
 -  [ARDUINO UNO microcontroller](https://store.arduino.cc/arduino-uno-rev3)
 -  [ADAFRUIT stepper shield](https://www.adafruit.com/product/1438)
+
 Any compatible step motor of desired resolution should work with the system. The following has been tested in previous works (see other references)
 -  [Step motor NEMA23 3A](https://www.omc-stepperonline.com/nema-23-bipolar-18deg-19nm-269ozin-3a-336v-57x57x76mm-4-wires-23hs30-3004s.html)
 
