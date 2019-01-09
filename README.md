@@ -1,4 +1,4 @@
-# ScanIR
+# ScanIR v2.0
 Impulse Response measurement tool for MATLAB 
 
 ## Description
