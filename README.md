@@ -6,7 +6,7 @@ Impulse Response measurement tool for MATLAB
 ## Publications
 When using the tool please mention the following publications
 
-Boren, B., & Roginska, A. (2011, October). [Multichannel impulse response measurement in matlab] (https://www.researchgate.net/publication/265876631_Multichannel_Impulse_Response_Measurement_in_Matlab). In Audio Engineering Society Convention 131. Audio Engineering Society.
+Boren, B., & Roginska, A. (2011, October). [Multichannel impulse response measurement in matlab](https://www.researchgate.net/publication/265876631_Multichannel_Impulse_Response_Measurement_in_Matlab). In Audio Engineering Society Convention 131. Audio Engineering Society.
 
 
 ## Usage 
