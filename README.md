@@ -40,8 +40,10 @@ Any compatible step motor of desired resolution should work with the system. The
 ### Usage 
 Please refer to the full user manual pdf for learning the full capabilities and features of the tool.
 
-See Also
-=====
+### See Also
 ScanIR v2 has been used for the following studies
 
+Zalles, G., Kamel, Y., Anderson, I., Lee, M. Y., Neil, C., Henry, M., ... & Roginska, A. (2017, October). [A Low-Cost, High-Quality MEMS Ambisonic Microphone](https://s18798.pcdn.co/immersiveaudiogroup/wp-content/uploads/sites/7671/2017/10/Zalles_MEMS.pdf). In Audio Engineering Society Convention 143. Audio Engineering Society.
+
+Genovese, A., Zalles, G., Reardon, G., & Roginska, A. (2018, August). [Acoustic perturbations in HRTFs measured on Mixed Reality Headsets](https://s18798.pcdn.co/immersiveaudiogroup/wp-content/uploads/sites/7671/2018/09/Acoustical_distortions_from_Augment_Reality_devices.pdf). In Audio Engineering Society Conference: 2018 AES International Conference on Audio for Virtual and Augmented Reality. Audio Engineering Society.
 
