@@ -29,7 +29,7 @@ ScanIR v2.0:
 ScanIRv2 has been extensively tested on MacOS Sierra. The use of other operating systems may lead to possible problems. Please report any bugs found or desired features. 
 
 ### Installation Requirements 
-To run ScanIR you will need the following software
+To run ScanIR you will **need** the following software
 -  MATLAB version 2016a or higher https://www.mathworks.com/
 -  Psychtoolbox-3 http://psychtoolbox.org/ 
 
