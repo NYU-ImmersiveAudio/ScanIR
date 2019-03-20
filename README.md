@@ -18,6 +18,7 @@ ScanIR is an impulse response measurement tool written for MATLAB which streamli
 
 ScanIR v2.0:
 -  Redesigned interface
+-  Tested on MacOS and Windows
 -  Added BRIR option
 -  SOFA output file format available
 -  ARDUINO UNO step motor feature integration
