@@ -1,0 +1,5 @@
+SIGNAL_TYPE = '__SIGNAL_TYPE:';
+SIGNAL_DUR = '__SIGNAL_DURATION:';
+FILTER_TYPE = '__FILTER_TYPE:';
+MARL_TAG = 'Measurements recorded using ScanIR NYU MARL';
+COMMENTS_TAG = '__COMMENTS:';
