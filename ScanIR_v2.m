@@ -1287,7 +1287,7 @@ fprintf('Recording completed! \n\n')
 if ( firstIRind < handles.specs.sampleRate + 1 )
     handles.data(handles.app.currID).IR = y(firstIRind-offset:firstIRind-offset+handles.app.irLength-1, :);
 else
-    warning('LOW SNR - EXCITATION SIGNAL MAY NOT BE STRONG ENOUGH');
+    warning('LOW SNR - THE EXCITATION SIGNAL MAY NOT BE STRONG ENOUGH');
     handles.data(handles.app.currID).IR = y(handles.specs.sampleRate + 1:end);
 end
 handles.data(handles.app.currID).azimuth = str2double(get(handles.az_edit, 'String'));
