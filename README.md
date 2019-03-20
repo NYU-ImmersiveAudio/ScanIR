@@ -17,13 +17,16 @@ ScanIR is an impulse response measurement tool written for MATLAB which streamli
 ### Changelog
 
 ScanIR v2.0:
+-  Redesigned interface
 -  Added BRIR option
 -  SOFA output file format available
--  Comment section
 -  ARDUINO UNO step motor feature integration
--  Default selection of external interface when plugged in at program startup
+-  Step motor speed and rotation settings
+-  Drop-down interface selection
 -  Updated plotting tools
--  IR Analysis metrics (multi-channel or single-channel)
+-  EDC plots
+-  Optional raw IR preservation
+-  Various RIR/HRIR Analysis metrics (multi-channel or single-channel)
 -  Minor bug fixes
 
 ScanIRv2 has been extensively tested on MacOS Sierra. The use of other operating systems may lead to possible problems. Please report any bugs found or desired features. 
@@ -35,6 +38,7 @@ To run ScanIR you will **need** the following software
 
 Rotating Motor Feature (Optional): 
 -  ARDUINO Matlab package https://www.mathworks.com/hardware-support/arduino-matlab.html
+-  ARDUINO IDE
 
 Enhanced analysis metrics (Optional):
 -  Matlab Signal Processing Toolbox
