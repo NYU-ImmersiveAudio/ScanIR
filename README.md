@@ -48,7 +48,7 @@ Enhanced analysis metrics (Optional):
 ### Setup
 Once all required components are installed just download the git and open the folder through MATLAB. To run ScanIR, click on the file ScanIR.m and run the script to start the GUI. 
 
-### Hardware required for ARM (Automated Rotating Mount) system
+### Hardware required for step-motor system
 -  [ARDUINO UNO microcontroller](https://store.arduino.cc/arduino-uno-rev3)
 -  [ADAFRUIT stepper shield](https://www.adafruit.com/product/1438)
 
