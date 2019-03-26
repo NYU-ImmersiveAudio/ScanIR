@@ -151,7 +151,7 @@ end
 % Determine the position of the dialog - centered on the callback figure
 % if available, else, centered on the screen
 ref_ss(1) = (400/72);
-ref_ss(2) = (530/72);
+ref_ss(2) = (580/72);
 ScreenUnits=get(0,'Units');
 set(0,'Units','pixels');
 p_ss=get(0,'ScreenSize');
