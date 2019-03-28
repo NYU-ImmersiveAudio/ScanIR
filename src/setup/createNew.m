@@ -237,7 +237,7 @@ handles.output.numPlays = handles.numPlays;
 try
     handles.output.motor = handles.motor;
 catch
-    disp('');
+    disp('ARDUINO not found');
 end
 % passing values for selected audio device
 %   inputStructure and outputStructure are structs returned by
