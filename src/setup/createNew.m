@@ -166,7 +166,7 @@ FigPos = get(hObject,'Position');
 Width = max([round(ref_ss(1)*res_ss(3)),round(p_ss(3)*0.25)]);
 Height = max([round(ref_ss(2)*res_ss(4)),round(p_ss(4)*0.6)]);
 if (Width > p_ss(3)) Width = p_ss(3); end
-if (Height > p_ss(4)-100) Height = p_ss(4)-100; end
+if (Height > p_ss(4)-80) Height = p_ss(4)-80; end
 FigPos(3)= Width;
 FigPos(4)= Height;
 FigPos(1)= round((p_ss(3)-FigPos(3))/2);
@@ -234,8 +234,11 @@ handles.output.numOutputChls = handles.numOutputChls;
 handles.output.outMode = handles.outMode;
 handles.output.maxOuts = handles.maxOuts;
 handles.output.numPlays = handles.numPlays;
-handles.output.motor = handles.motor;
-
+try
+    handles.output.motor = handles.motor;
+catch
+    disp('');
+end
 % passing values for selected audio device
 %   inputStructure and outputStructure are structs returned by
 %   PsychPortAudio when called for the selected audio devices.
