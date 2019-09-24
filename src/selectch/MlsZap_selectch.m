@@ -95,13 +95,13 @@ while i < numRepeats
     i = i + 1;
 end
 temp = temp./numRepeats;
-temp = temp(:); % column vectors again
+temp = temp'; % column vectors again
 
 clipFlag = 0;
 if (max(abs(temp)) > 0.95), clipFlag = 1.0; end;
-temp = temp(zpd+1:length(signal)+responseLength+zpd, 1:lic);        %takes off zeropadding before deconvolution
+temp = temp(zpd+1:length(signal)+responseLength+zpd, 1:inputChl);        %takes off zeropadding before deconvolution
 
-response = decmls(temp, signal, responseLength, lic);
+response = decmls(temp, signal, responseLength, inputChl);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
