@@ -36,8 +36,6 @@ function signal = playrec_selectch (audioDeviceInfo, out_signal, ...
 
 % rec_len
 % - how long to record, in seconds
-
-
 [M N] = size(out_signal);
 
 
@@ -91,14 +89,15 @@ end
 
 
 % perform simultaneous playback and recording
-
 InitializePsychSound;
 PsychPortAudio('GetDevices');
 pahandle = PsychPortAudio('Open', audioDeviceInfo.DeviceIndex, 3, 0, srate, [num_out_ch, in_ch]);
+
+
 PsychPortAudio('FillBuffer', pahandle, out_matrix);
 PsychPortAudio('GetAudioData', pahandle, rec_len);
 PsychPortAudio('Start', pahandle);
 WaitSecs(rec_len);
 PsychPortAudio('Stop', pahandle,1);
-[signal] = PsychPortAudio('GetAudioData', pahandle);
+[signal] = PsychPortAudio('GetAudioData', pahandle)
 PsychPortAudio('Close');

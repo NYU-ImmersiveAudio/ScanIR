@@ -31,7 +31,7 @@ function varargout = ScanIR_v2(varargin)
 %  Copyright 2011
 
 
-% Last Modified by GUIDE v2.5 20-Mar-2019 03:23:28
+% Last Modified by GUIDE v2.5 27-Sep-2019 13:47:06
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -157,10 +157,12 @@ elseif ( strcmp(opening, 'loadSession') )
     handles = loadFile(hObject, handles);
     % find maximum number of output and input channels
     InitializePsychSound;
-    dev = PsychPortAudio('GetDevices');
+    dev = PsychPortAudio('GetDevices')
     [m n] = size(dev);
+    
     handles.maxOuts = 0;
     handles.maxIns = 0;
+    
     for k = 1:n
         testOuts = getfield(dev, {1,k}, 'NrOutputChannels');
         if (handles.maxOuts < testOuts)
@@ -181,6 +183,13 @@ if exist('handles.loaded')
         return
     end
 end
+
+
+
+
+%Initialize excititation Lvl (Scale Factor) 
+handles.app.excitationLvl = 0.015; % set low for speaker safety
+set(handles.excitationLvlEdit, 'String', num2str(handles.app.excitationLvl));
 
 handles.app.outchl = str2double(get(handles.outChannelEdit, 'String'));
 
@@ -1233,6 +1242,7 @@ disp(handles.app.outchl);
 %if (handles.app.irLength > handles.specs.sampleRate)
 recLen = handles.app.irLength+handles.specs.sampleRate;
 showTime=(recLen/handles.specs.sampleRate);% record an additional second more than we need
+
 %else
 %    recLen = handles.specs.sampleRate*2;
 %end
@@ -1251,7 +1261,7 @@ if ( strcmpi (handles.specs.signalType, 'Sine Sweep') || strcmpi (handles.specs.
         recLen,handles.app.numPlays,...
         20, ...
         handles.specs.sampleRate/2, ...
-        .6,  ...
+        handles.app.excitationLvl,  ...
         savewav);
 elseif ( strcmpi (handles.specs.signalType, 'MLS') )
     % Minimum length sequence
@@ -1262,7 +1272,8 @@ elseif ( strcmpi (handles.specs.signalType, 'MLS') )
         handles.specs.sampleRate,...
         mlsLen,recLen,...
         handles.app.numPlays,...
-        .6,savewav);
+        handles.app.excitationLvl,...
+        savewav);
 elseif ( strcmpi (handles.specs.signalType, 'Golay Codes') || strcmpi (handles.specs.signalType, 'Golay-Codes'))
     % Golay code
     golayLen = nextpow2(handles.app.sigLength * handles.specs.sampleRate + 1);
@@ -1272,7 +1283,9 @@ elseif ( strcmpi (handles.specs.signalType, 'Golay Codes') || strcmpi (handles.s
         handles.specs.sampleRate,...
         golayLen,recLen,...
         handles.app.numPlays,...
-        1,.6,savewav);
+        1, ...
+        handles.app.excitationLvl, ...
+        savewav);
 end
 
 handles.data(handles.app.currID).rawIR = y;
@@ -1808,3 +1821,86 @@ function antiradio_Callback(hObject, eventdata, handles)
 handles.motor.direction = -1;
 set(handles.clockradio,'Value',0);
 guidata(hObject,handles);
+
+
+function excitationLvlEdit_Callback(hObject, eventdata, handles)
+% hObject    handle to excitationLvlEdit (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of excitationLvlEdit as text
+%        str2double(get(hObject,'String')) returns contents of excitationLvlEdit as a double
+
+value = str2double(get(hObject,'String'));
+set(handles.excitationLvlSlider, 'Value', value); 
+handles.app.excitationLvl = value; 
+guidata(hObject, handles);
+
+
+% --- Executes during object creation, after setting all properties.
+function excitationLvlEdit_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to excitationLvlEdit (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on excitation slider movement.
+function excitationLvlSlider_Callback(hObject, eventdata, handles)
+% hObject    handle to excitation slider
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+value = 1 - get(hObject, 'Value');
+handles.app.excitationLvl = value;
+set(handles.excitationLvlEdit, 'String', num2str(value)); 
+guidata(hObject, handles); 
+
+
+% --- Executes during object creation, after setting all properties.
+function excitationLvlSlider_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to excitationLvlSlider (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+
+% Hint: slider controls usually have a light gray background.
+if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor',[.9 .9 .9]);
+end
+
+
+% --- Executes on button press in togglebutton2.
+function togglebutton2_Callback(hObject, eventdata, handles)
+% hObject    handle to togglebutton2 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+value = get(hObject, 'Value');
+
+if value == 0
+    % stop volume control mode
+    %PsychPortAudio('Close' );
+    
+    set(handles.excitationLvlEdit,'Enable','off')
+    set(handles.excitationLvlSlider,'Enable','off')
+    set(handles.playExcitationLvlSample,'Enable','off')
+    set(handles.measureButton, 'Enable', 'on')
+ 
+else
+    %start volume control mode
+    
+    %handles.app.pahandle = PsychPortAudio('Open', ...
+    %handles.specs.audioDeviceInfo.DeviceIndex);
+    
+    set(handles.excitationLvlEdit,'Enable','on')
+    set(handles.excitationLvlSlider,'Enable','on')
+    set(handles.playExcitationLvlSample,'Enable','on')
+    set(handles.measureButton, 'Enable', 'off')
+end
+
+guidata(hObject, handles); 
