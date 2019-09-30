@@ -88,9 +88,9 @@ if (max(abs(temp)) > 0.95), clipFlag = 1.0; end;
 
 i = 1;                                          %repeats and averages for better signal to noise ratio
 while i < numRepeats
-    peat = playrec_selectch(psig', srate, outputChl, lic, (length(psig)+responseLength)/srate);
-    %playrec_selectch(audioDeviceInfo, ...
-    %psig', srate, outputChl, inputChl, (length(psig)+responseLength)/srate);
+    %peat = playrec_selectch(psig', srate, outputChl, lic, (length(psig)+responseLength)/srate);
+    playrec_selectch(audioDeviceInfo, ...
+    psig', srate, outputChl, inputChl, (length(psig)+responseLength)/srate);
     temp = temp+peat;
     i = i + 1;
 end
