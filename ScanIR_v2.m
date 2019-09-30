@@ -1883,23 +1883,13 @@ function togglebutton2_Callback(hObject, eventdata, handles)
 value = get(hObject, 'Value');
 
 if value == 0
-    % stop volume control mode
-    %PsychPortAudio('Close' );
-    
     set(handles.excitationLvlEdit,'Enable','off')
     set(handles.excitationLvlSlider,'Enable','off')
-    set(handles.playExcitationLvlSample,'Enable','off')
     set(handles.measureButton, 'Enable', 'on')
- 
 else
-    %start volume control mode
-    
-    %handles.app.pahandle = PsychPortAudio('Open', ...
-    %handles.specs.audioDeviceInfo.DeviceIndex);
-    
+    %start volume control mode    
     set(handles.excitationLvlEdit,'Enable','on')
     set(handles.excitationLvlSlider,'Enable','on')
-    set(handles.playExcitationLvlSample,'Enable','on')
     set(handles.measureButton, 'Enable', 'off')
 end
 
