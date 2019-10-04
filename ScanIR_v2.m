@@ -1883,8 +1883,8 @@ function togglebutton2_Callback(hObject, eventdata, handles)
 value = get(hObject, 'Value');
 
 if value == 0
-    set(handles.excitationLvlEdit,'Enable','off')
-    set(handles.excitationLvlSlider,'Enable','off')
+    set(handles.excitationLvlEdit,'Enable', 'off')
+    set(handles.excitationLvlSlider,'Enable', 'off')
     set(handles.measureButton, 'Enable', 'on')
 else
     %start volume control mode    
