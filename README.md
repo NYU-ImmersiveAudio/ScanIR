@@ -6,7 +6,7 @@ ScanIR is available through CreativeCommons License.
 ### Publications
 When using the tool please mention the following publications
 
-Vanasse, J., Genovese, A. & Roginska, A. (2019, March). Multichannel impulse response measurement in matlab: An update on ScanIR. In Audio Engineering Society, Interactive and Immersive Audio Conference, York 2019. 
+Vanasse, J., Genovese, A. & Roginska, A. (2019, March). [Multichannel impulse response measurement in matlab: An update on ScanIR](https://andreagenovese.com/wp-content/uploads/2019/07/EBrief1___ScanIR-2.pdf). In Audio Engineering Society, Interactive and Immersive Audio Conference, York 2019. 
 
 Boren, B., & Roginska, A. (2011, October). [Multichannel impulse response measurement in matlab](https://www.researchgate.net/publication/265876631_Multichannel_Impulse_Response_Measurement_in_Matlab). In Audio Engineering Society Convention 131. Audio Engineering Society.
 
@@ -15,6 +15,13 @@ Boren, B., & Roginska, A. (2011, October). [Multichannel impulse response measur
 ScanIR is an impulse response measurement tool written for MATLAB which streamlines the process of generating, emitting and recording an acoustic measurement signal. Several types of measurement signals and recording settings are available for the measurement of Room-Impulse-Responses, Multichannel-Impulse-Responses, Head-Related-Impulse-Responses and others. The program intends to simplify the measurement process and provides the experimenter with the acoustic response data in customizable format. 
 
 ### Changelog
+
+ScanIR v2.1:
+- Can now select separate Input/Output interfaces
+- Various bug fixes for MLS and Golay playback
+- Adjustments to the interface
+
+**Due to limitations of PsychPortAudio, it is not anymore possible to change the device sample rate within MATLAB using separate devices. Please set your I/P and O/P devices sample rates from your computer settings, then restart MATLAB**
 
 ScanIR v2.0:
 -  Redesigned interface
@@ -30,7 +37,7 @@ ScanIR v2.0:
 -  Various RIR/HRIR Analysis metrics (multi-channel or single-channel)
 -  Minor bug fixes
 
-ScanIRv2 has been extensively tested on MacOS Sierra. The use of other operating systems may lead to possible problems. Please report any bugs found or desired features. 
+ScanIRv2 has been extensively tested on MacOS Sierra and Windows 10. The use of other operating systems may lead to possible problems. Please report any bugs found or desired features. 
 
 ### Installation Requirements 
 To run ScanIR you will **need** the following software
@@ -44,6 +51,9 @@ Rotating Motor Feature (Optional):
 Enhanced analysis metrics (Optional):
 -  Matlab Signal Processing Toolbox
 
+Minimum Operating System:
+-  Windows Vista or newer
+-  MacOS El Capitan or newer
 
 ### Setup
 Once all required components are installed just download the git and open the folder through MATLAB. To run ScanIR, click on the file ScanIR.m and run the script to start the GUI. When using external audio cards to connect microphone and loudspeakers please connect them prior to starting MATLAB. At the present moment, the same device needs to be used for input and output.
