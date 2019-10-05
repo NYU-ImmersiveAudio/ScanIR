@@ -31,7 +31,7 @@ function varargout = ScanIR_v2(varargin)
 %  Copyright 2011
 
 
-% Last Modified by GUIDE v2.5 20-Mar-2019 03:23:28
+% Last Modified by GUIDE v2.5 05-Oct-2019 19:10:11
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -1294,11 +1294,11 @@ if ( firstIRind < handles.specs.sampleRate + 1 )
     handles.lowSNR = 0;
     set(handles.warn_text,'String','');
 else
+    set(handles.warn_text,'String','ATTENTION: LOW SNR - retake the measurement to compute analysis parameters');
     warning('LOW SNR - THE EXCITATION SIGNAL MAY NOT BE STRONG ENOUGH');
     beep;
     handles.data(handles.app.currID).IR = y(handles.specs.sampleRate + 1:end);
     handles.lowSNR = 1;
-    set(handles.warn_text,'String','ATTENTION: LOW SNR - retake the measurement to compute analysis parameters');
 end
 handles.data(handles.app.currID).azimuth = str2double(get(handles.az_edit, 'String'));
 handles.data(handles.app.currID).elevation = str2double(get(handles.el_edit, 'String'));
@@ -1316,11 +1316,12 @@ drawnow;
 if ~handles.lowSNR
     handles = runAnalysis(handles);
     disp('Running Analysis ...');
+    set(handles.warn_text,'String','');
 else
     warning('THE SNR IS TOO LOW TO COMPUTE THE ANALYSIS');
+    set(handles.warn_text,'String','ATTENTION: LOW SNR - retake the measurement to compute analysis parameters');
     handles = resetFields(handles);
 end
-set(handles.warn_text,'String','');
 drawnow;
 plotresponse(hObject,handles);
 set(handles.warn_text,'Visible','off');
@@ -1815,3 +1816,10 @@ function antiradio_Callback(hObject, eventdata, handles)
 handles.motor.direction = -1;
 set(handles.clockradio,'Value',0);
 guidata(hObject,handles);
+
+
+% --- Executes on button press in git_validator.
+function git_validator_Callback(hObject, eventdata, handles)
+% hObject    handle to git_validator (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
