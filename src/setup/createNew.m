@@ -22,7 +22,7 @@ function varargout = createNew(varargin)
 
 % Edit the above text to modify the response to help createNew
 
-% Last Modified by GUIDE v2.5 20-Mar-2019 17:29:18
+% Last Modified by GUIDE v2.5 30-Sep-2019 16:21:43
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -58,8 +58,8 @@ handles.inMode = 1;  % starts as mono IR
 handles.outMode = 1; % 1 channel output
 handles.signalType = 'Sine Sweep'; % sine sweep
 handles.sigLength = 1; % 1 second
-handles.irLength = 44100; % 1 second IR
-handles.sampleRate = 44100; 
+handles.irLength = 48000; % 1 second IR
+handles.sampleRate = 48000; 
 handles.numInputChls = 1;
 handles.numOutputChls = 1;
 handles.numPlays = 1;
@@ -67,67 +67,38 @@ handles.numPlays = 1;
 
 % --- Init for Audio Devices --- %
 InitializePsychSound;
-
-% -- Check operating system & set tokens
-handles = system_tokens(handles);
-% populate Audio Device popup menus
-handles.allDevices = AudioDeviceNames;
-handles.audioDeviceNames = handles.allDevices;
-% handle Built-In case
-idx_in = find(strcmp(handles.allDevices,handles.built_IP)...
-    |strcmp(handles.allDevices,'Built-in Microph'));
-if ~isempty(idx_in)
-    handles.audioDeviceNames{idx_in} = 'Built-in';
-    handles.offsetDevice = idx_in;
-end
-idx_out = find(strcmp(handles.allDevices,handles.built_OP));
-if ~isempty(idx_out)
-    handles.audioDeviceNames(idx_out) = [];
-end
-set(handles.popupmenu_audioDevice, 'String', handles.audioDeviceNames);
-
-% % set Selected Audio Device to the first non-built-in device
-% audio_device_tokens;
-% 
-% for i = 1:length(handles.audioDeviceNames)
-%     deviceName = char(handles.audioDeviceNames(i));
-%     if (~strcmp(deviceName, BUILT_IN_MICROPHONE))
-%         if (~strcmp(deviceName, BUILT_IN_OUTPUT))
-%             set(handles.popupmenu_audioDevice, 'Value', i);
-%             break;
-%         end
-%     end
-% end
-
-for i = 1:length(handles.audioDeviceNames)
-    deviceName = char(handles.audioDeviceNames(i));
-    if (strcmp(deviceName, 'Built-in'))
-        set(handles.popupmenu_audioDevice, 'Value', i);
-        break;
+% -- Check operating system & set device list
+handles = system_devices(handles);
+% Populate Input and Output lists
+set(handles.popup_audiodevice_in, 'String', handles.IpDevNames)
+set(handles.popup_audiodevice_out, 'String', handles.OpDevNames)
+% Default to Built-in device
+for ip = 1:length(handles.IpDevNames)
+    dev = handles.IpDevNames{ip};
+    if (strcmp(dev, handles.built_IP))
+        set(handles.popup_audiodevice_in, 'Value', ip);
     end
 end
-
-
-% select default audio device and store struct audioDeviceInfo
-handles.audioDeviceNameSelected = ...
-    handles.audioDeviceNames{get(handles.popupmenu_audioDevice, 'Value')};
-if ~strcmp(handles.audioDeviceNameSelected,'Built-in')
-    handles.audioDeviceInfo = AudioDeviceInfoByName(...
-        handles.audioDeviceNameSelected);
-else
-    handles.audioDeviceInfo = AudioDeviceInfoByName(handles.built_OP);
-    handles.audioDeviceInfo.DeviceIndex = -1;
-    handles.audioDeviceInfo.DeviceName = 'Built-in';
-    temp_dev = AudioDeviceInfoByName(handles.allDevices{handles.offsetDevice});
-    handles.audioDeviceInfo.NrInputChannels = temp_dev.NrInputChannels;
-    handles.audioDeviceInfo.LowInputLatency = temp_dev.LowInputLatency;
-    handles.audioDeviceInfo.HighInputLatency = temp_dev.HighInputLatency;
+for op = 1:length(handles.OpDevNames)
+    dev = handles.OpDevNames{op};
+    if (strcmp(dev, handles.built_OP))
+        set(handles.popup_audiodevice_out, 'Value', op);
+    end
 end
-
-
-% find maximum number of output and input channels
-handles.maxOuts     = handles.audioDeviceInfo.NrOutputChannels;
-handles.maxIns      = handles.audioDeviceInfo.NrInputChannels;
+% Input Audio Device Info
+ip_idx = get(handles.popup_audiodevice_in, 'Value');
+handles.IpDevInfo = handles.availableIP(ip_idx);
+handles.maxIns = handles.IpDevInfo.NrInputChannels;
+handles.text_ip_ch.String = num2str(handles.IpDevInfo.NrInputChannels);
+handles.text_ip_sr.String = num2str(handles.IpDevInfo.DefaultSampleRate);
+% Output Audio Device Info
+op_idx = get(handles.popup_audiodevice_out, 'Value');
+handles.OpDevInfo = handles.availableOP(op_idx);
+handles.maxOuts = handles.OpDevInfo.NrOutputChannels;
+handles.text_op_ch.String = num2str(handles.OpDevInfo.NrOutputChannels);
+handles.text_op_sr.String = num2str(handles.OpDevInfo.DefaultSampleRate);
+% Check if compatible
+check_compatibility(hObject, handles);
 
 % Update handles structure
 guidata(hObject, handles);
@@ -242,9 +213,8 @@ end
 % passing values for selected audio device
 %   inputStructure and outputStructure are structs returned by
 %   PsychPortAudio when called for the selected audio devices.
-handles.output.audioDeviceInfo = handles.audioDeviceInfo;
-
-
+handles.output.IpDevInfo = handles.IpDevInfo;
+handles.output.OpDevInfo = handles.OpDevInfo;
 handles.output.sessionName = get(handles.edit_sessionName, 'String');
 
 
@@ -273,6 +243,9 @@ handles.output.numOutputChls = handles.numOutputChls;
 handles.output.outMode = handles.outMode;
 handles.output.maxOuts = handles.maxOuts;
 handles.output.numPlays = handles.numPlays;
+handles.output.IpDevInfo = handles.IpDevInfo;
+handles.output.OpDevInfo = handles.OpDevInfo;
+handles.output.sessionName = get(handles.edit_sessionName, 'String');
 
 % Update handles structure
 guidata(hObject, handles);
@@ -376,45 +349,35 @@ end
 
 
 function createIRLength_Callback(hObject, eventdata, handles)
-
-
 sigIndex = get(handles.createSignal, 'Value');
 if (sigIndex ~= 1) % extra check when using MLS or Golay Codes
     irLength = updateIRLength(hObject, handles);
     pow2Len = nextpow2(handles.sigLength * handles.sampleRate + 1);
-    handles.sigLength
 end
-
 guidata(hObject, handles);
 
 % --- Executes during object creation, after setting all properties.
 function createIRLength_CreateFcn(hObject, eventdata, handles)
-
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
 
 
-% --- Executes on selection change in createSrate.
-function createSrate_Callback(hObject, eventdata, handles)
-
-srates = [22050 44100 48000 96000];
-srate_i = get(handles.createSrate, 'Value');
-handles.sampleRate = srates(srate_i);
-
-guidata(hObject, handles);
+% % --- Executes on selection change in createSrate.
+% function createSrate_Callback(hObject, eventdata, handles)
+% srates = [22050 44100 48000 96000];
+% srate_i = get(handles.createSrate, 'Value');
+% handles.sampleRate = srates(srate_i);
+% guidata(hObject, handles);
 
 % --- Executes during object creation, after setting all properties.
-function createSrate_CreateFcn(hObject, eventdata, handles)
-
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
+% function createSrate_CreateFcn(hObject, eventdata, handles)
+% if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+%     set(hObject,'BackgroundColor','white');
+% end
 
 % --- Executes on selection change in createSignal.
 function createSignal_Callback(hObject, eventdata, handles)
-
 sigIndex = get(handles.createSignal, 'Value');
 if (sigIndex == 1)
     handles.signalType = 'Sine Sweep';
@@ -423,22 +386,17 @@ elseif (sigIndex == 2)
 elseif (sigIndex == 3)
     handles.signalType = 'Golay Codes';
 end
-
 guidata(hObject, handles);
 
 % --- Executes during object creation, after setting all properties.
 function createSignal_CreateFcn(hObject, eventdata, handles)
-
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
 
-
 % --- Executes on selection change in createMode.
 function createMode_Callback(hObject, eventdata, handles)
-
 handles.inMode = get(handles.createMode, 'Value');
-
 if (handles.inMode == 1) % Mono IR
     set(handles.outputModeLabel, 'Enable', 'off');
     set(handles.outputModePopup, 'Enable', 'off');
@@ -446,18 +404,14 @@ if (handles.inMode == 1) % Mono IR
     set(handles.createNuminchls, 'Enable', 'off');
     handles.numInputChls = 1;
     handles.numOutputChls = 1;
-    set(handles.text8, 'Enable', 'on');
-    set(handles.text8, 'String', 'seconds');  % measure IR length in seconds for room acoustics
     set(handles.NumOutput_txt, 'Enable', 'off');
     set(handles.NumOutputEdit, 'Enable', 'off');
     set(handles.timeUnitsPopup, 'Enable', 'on');
     handles.timeMode = get(handles.timeUnitsPopup, 'Value');
     if handles.timeMode == 1
-        set(handles.text8, 'String', 'samples');
         set(handles.createIRLength, 'Value', 3);
         set(handles.createIRLength, 'String', '128|256|512|1024|2048|4096|8192');
     elseif handles.timeMode == 2
-        set(handles.text8, 'String', 'seconds');
         set(handles.createIRLength, 'Value', 1);
         set(handles.createIRLength, 'String', '1|2|3|4|5|6|7|8|9');
     end
@@ -470,13 +424,10 @@ elseif (handles.inMode == 2) % HRIR or BRIR
     set(handles.timeUnitsPopup, 'Enable', 'on');
     set(handles.timeUnitsPopup,'Value',2);
     handles.timeMode = get(handles.timeUnitsPopup, 'Value');
-    set(handles.text8, 'Enable', 'on');
     if handles.timeMode == 1
-        set(handles.text8, 'String', 'samples');
         set(handles.createIRLength, 'Value', 3);
         set(handles.createIRLength, 'String', '128|256|512|1024|2048|4096|8192');
     elseif handles.timeMode == 2
-        set(handles.text8, 'String', 'seconds');
         set(handles.createIRLength, 'Value', 1);
         set(handles.createIRLength, 'String', '1|2|3|4|5|6|7|8|9');
     end
@@ -487,29 +438,23 @@ elseif (handles.inMode == 3) % Multichannel IR
     set(handles.createNuminchls, 'Enable', 'on');
     handles.numInputChls = str2double(get(handles.createNuminchls, 'String'));
     handles.numOutputChls = 1;
-    set(handles.text8, 'Enable', 'on');
     set(handles.timeUnitsPopup, 'Enable', 'on');
     handles.timeMode = get(handles.timeUnitsPopup, 'Value');
-    set(handles.text8, 'Enable', 'on');
     if handles.timeMode == 1
-        set(handles.text8, 'String', 'samples');
         set(handles.createIRLength, 'Value', 3);
         set(handles.createIRLength, 'String', '128|256|512|1024|2048|4096|8192');
     elseif handles.timeMode == 2
-        set(handles.text8, 'String', 'seconds');
         set(handles.createIRLength, 'Value', 1);
         set(handles.createIRLength, 'String', '1|2|3|4|5|6|7|8|9');
     end
     set(handles.NumOutput_txt, 'Enable', 'off');
     set(handles.NumOutputEdit, 'Enable', 'off');
 end
-
 guidata(hObject, handles);
 
 
 % --- Executes during object creation, after setting all properties.
 function createMode_CreateFcn(hObject, eventdata, handles)
-
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
@@ -517,7 +462,6 @@ end
 % --- Executes on selection change in outputModePopup.
 function outputModePopup_Callback(hObject, eventdata, handles)
 handles.outMode = get(handles.outputModePopup, 'Value');
-
 if (handles.outMode == 1)
     handles.numOutputChls = 1;
     set(handles.NumOutput_txt, 'Enable', 'off');
@@ -533,12 +477,10 @@ elseif (handles.outMode == 2)
         set(handles.NumOutputEdit, 'String', num2str(handles.maxOuts));
     end
 end
-
 guidata(hObject, handles);
 
 % --- Executes during object creation, after setting all properties.
 function outputModePopup_CreateFcn(hObject, eventdata, handles)
-
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
@@ -559,12 +501,10 @@ elseif (outEditVal ~= round(outEditVal)) % no decimal numbers of channels
 else
     handles.numOutputChls = outEditVal;
 end
-
 guidata(hObject, handles);
 
 % --- Executes during object creation, after setting all properties.
 function NumOutputEdit_CreateFcn(hObject, eventdata, handles)
-
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
@@ -612,11 +552,9 @@ handles.timeMode = get(handles.timeUnitsPopup, 'Value');
 if (handles.timeMode == 1)
     set(handles.createIRLength, 'Value', 3);
     set(handles.createIRLength, 'String', '128|256|512|1024|2048|4096|8192');
-    set(handles.text8, 'String', 'samples'); % measure HRIR length in samples
 elseif (handles.timeMode == 2)
     set(handles.createIRLength, 'Value', 1);
     set(handles.createIRLength, 'String', '1|2|3|4|5|6|7|8|9');
-    set(handles.text8, 'String', 'seconds'); % measure HRIR length in samples
 end
 
 % --- Executes during object creation, after setting all properties.
@@ -631,6 +569,7 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
     set(hObject,'BackgroundColor','white');
 end
 
+% --- Extension to BRIR mode
 function newIRLength = updateIRLength(hObject, handles)
 length_i = get(handles.createIRLength, 'Value');
 timeUnits = 1:9;
@@ -641,43 +580,29 @@ if handles.timeMode == 2 % Seconds
 elseif handles.timeMode == 1 % Samples
     newIRLength = sampleUnits(length_i);
 end
-
 guidata(hObject, handles);
 
 
-% --- Executes on selection change in popupmenu_audioDevice.
-function popupmenu_audioDevice_Callback(hObject, eventdata, handles)
-% hObject    handle to popupmenu_audioDevice (see GCBO)
+% --- Executes on selection change in popup_audiodevice_in.
+function popup_audiodevice_in_Callback(hObject, eventdata, handles)
+% hObject    handle to popup_audiodevice_in (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-% Hints: contents = cellstr(get(hObject,'String')) returns popupmenu_audioDevice contents as cell array
-%        contents{get(hObject,'Value')} returns selected item from popupmenu_audioDevice
-
-contents = cellstr(get(hObject, 'String'));
-handles.audioDeviceSelected = contents{get(hObject, ...
-                                            'Value')};
-if strcmp(handles.audioDeviceSelected,'Built-in')                                        
-    handles.audioDeviceInfo = AudioDeviceInfoByName(handles.built_OP);
-    handles.audioDeviceInfo.DeviceIndex = -1;
-    handles.audioDeviceInfo.DeviceName = 'Built-in';
-    temp_dev = AudioDeviceInfoByName(handles.allDevices{handles.offsetDevice}); 
-    handles.audioDeviceInfo.NrInputChannels = temp_dev.NrInputChannels;
-    handles.audioDeviceInfo.LowInputLatency = temp_dev.LowInputLatency;
-    handles.audioDeviceInfo.HighInputLatency = temp_dev.HighInputLatency;
-    handles.maxIns = temp_dev.NrInputChannels;
-else
-    handles.audioDeviceInfo = AudioDeviceInfoByName(...
-                                        handles.audioDeviceSelected);
-    handles.maxIns = handles.audioDeviceInfo.NrInputChannels;
-end
-
+% Hints: contents = cellstr(get(hObject,'String')) returns popup_audiodevice_in contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from popup_audiodevice_in
+ip_idx = get(handles.popup_audiodevice_in, 'Value');
+handles.IpDevInfo = handles.availableIP(ip_idx);
+handles.maxIns = handles.IpDevInfo.NrInputChannels;
+handles.text_ip_ch.String = num2str(handles.IpDevInfo.NrInputChannels);
+handles.text_ip_sr.String = num2str(handles.IpDevInfo.DefaultSampleRate);
+check_compatibility(hObject, handles);
 guidata(hObject, handles);
 
 
 % --- Executes during object creation, after setting all properties.
-function popupmenu_audioDevice_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to popupmenu_audioDevice (see GCBO)
+function popup_audiodevice_in_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to popup_audiodevice_in (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 
@@ -686,7 +611,6 @@ function popupmenu_audioDevice_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
-
 
 
 function edit_sessionName_Callback(hObject, eventdata, handles)
@@ -712,8 +636,6 @@ end
 default_name_string = "New Session " + datestr(datetime('now'));
 set(hObject, 'String', default_name_string);
 handles.sessionName     = get(hObject, 'String');
-
-
 
 function spr_edit_Callback(hObject, eventdata, handles)
 % hObject    handle to spr_edit (see GCBO)
@@ -743,8 +665,6 @@ function spr_edit_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
-
-
 
 function rpm_edit_Callback(hObject, eventdata, handles)
 % hObject    handle to rpm_edit (see GCBO)
@@ -805,3 +725,48 @@ function port_edit_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
+
+
+% --- Executes on selection change in popup_audiodevice_out.
+function popup_audiodevice_out_Callback(hObject, eventdata, handles)
+% hObject    handle to popup_audiodevice_out (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: contents = cellstr(get(hObject,'String')) returns popup_audiodevice_out contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from popup_audiodevice_out
+op_idx = get(handles.popup_audiodevice_out, 'Value');
+handles.OpDevInfo = handles.availableOP(op_idx);
+handles.maxOuts = handles.OpDevInfo.NrOutputChannels;
+handles.text_op_ch.String = num2str(handles.OpDevInfo.NrOutputChannels);
+handles.text_op_sr.String = num2str(handles.OpDevInfo.DefaultSampleRate);
+check_compatibility(hObject, handles);
+guidata(hObject,handles);
+
+
+% --- Executes during object creation, after setting all properties.
+function popup_audiodevice_out_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to popup_audiodevice_out (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+function check_compatibility(hObject, handles)
+sr_in =  handles.IpDevInfo.DefaultSampleRate;
+sr_out = handles.OpDevInfo.DefaultSampleRate;
+if sr_in == sr_out
+   handles.text_ip_sr.ForegroundColor = [0.03; 0.67; 0.07];
+   handles.text_op_sr.ForegroundColor = [0.03; 0.67; 0.07];
+   handles.createButton.Enable = 'on';
+else
+   handles.text_ip_sr.ForegroundColor = [0.86; 0.27; 0.27];
+   handles.text_op_sr.ForegroundColor = [0.86; 0.27; 0.27];
+   handles.createButton.Enable = 'off';
+end
+handles.sampleRate = sr_in;
+guidata(hObject,handles);

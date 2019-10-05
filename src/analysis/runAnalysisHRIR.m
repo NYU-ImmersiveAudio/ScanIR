@@ -6,6 +6,9 @@ IR = handles.data(idx).IR;
 fs = handles.specs.sampleRate;
 if size(IR,2)~=2
     disp('Can`t run binaural metrics on non-stereo data');
+    handles.data(idx).ITD = [];
+    handles.data(idx).ILD = [];
+    handles.data(idx).IACC = [];
     return;
 end
 

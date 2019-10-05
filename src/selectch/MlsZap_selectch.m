@@ -1,4 +1,4 @@
-function [response, clipFlag] = mlsZap_selectch(audioDeviceInfo, ...
+function [response, clipFlag] = MlsZap_selectch(IpDeviceInfo, OpDeviceInfo, ...
     outputChl, inputChl, srate, signalLength, responseLength, numRepeats, scale, savewav)
 
 %function [response, clipFlag] = mlsZap(outputChl, inputChl, srate, signalLength, responseLength, scale, opt)
@@ -7,7 +7,8 @@ function [response, clipFlag] = mlsZap_selectch(audioDeviceInfo, ...
 % Sequence (MLS)
 %
 % Input:
-%   audioInputDeviceInfo: audio device IO structure
+%   IpDeviceInfo: audio device IO structure
+%   OpDeviceInfo: audio device IO structure
 %   outputChl: signal output channel(s), as row vector (e.g. [1])
 %   inputChl: signal input channel(s), as row vector (e.g. [1 2])
 %   srate: sampling rate, in Hz
@@ -33,14 +34,14 @@ function [response, clipFlag] = mlsZap_selectch(audioDeviceInfo, ...
 % Copyright Music Technology, New York University
 
 %% checking arguments
-if nargin < 9, savewav = 0; end;
-if nargin < 8, scale = .9; end;
-if nargin < 7, numRepeats = 1; end;
-if nargin < 6, responseLength = 2048; end;
-if nargin < 5, signalLength = 15; end;
-if nargin < 4, srate = 44100; end;
-if nargin < 3, inputChl = [1 2]; end;
-if nargin < 2, outputChl = 1; end;
+if nargin < 10, savewav = 0; end
+if nargin < 9, scale = .9; end
+if nargin < 8, numRepeats = 1; end
+if nargin < 7, responseLength = 2048; end
+if nargin < 6, signalLength = 15; end
+if nargin < 5, srate = 44100; end
+if nargin < 4, inputChl = [1 2]; end
+if nargin < 3, outputChl = 1; end
 if (responseLength <= 0) || (round(responseLength) ~= responseLength)
     error('responseLength must be an integer > 0')
 end
@@ -71,7 +72,7 @@ psig = [zeros(zpd, loc); psig;zeros(zpd, loc)];
 
 %% record
     
-temp = playrec_selectch(audioDeviceInfo, ...
+temp = playrec_selectch(IpDeviceInfo, OpDeviceInfo,  ...
     psig', srate, outputChl, inputChl, (length(psig)+responseLength)/srate);
 
 if isfield(savewav, 'az')
@@ -89,16 +90,16 @@ if (max(abs(temp)) > 0.95), clipFlag = 1.0; end;
 i = 1;                                          %repeats and averages for better signal to noise ratio
 while i < numRepeats
     %peat = playrec_selectch(psig', srate, outputChl, lic, (length(psig)+responseLength)/srate);
-    playrec_selectch(audioDeviceInfo, ...
+    playrec_selectch(IpDeviceInfo, OpDeviceInfo, ...
     psig', srate, outputChl, inputChl, (length(psig)+responseLength)/srate);
     temp = temp+peat;
     i = i + 1;
 end
 temp = temp./numRepeats;
-temp = temp(:); % column vectors again
+temp = temp'; 
 
 clipFlag = 0;
-if (max(abs(temp)) > 0.95), clipFlag = 1.0; end;
+if (max(abs(temp(:))) > 0.95), clipFlag = 1.0; end
 temp = temp(zpd+1:length(signal)+responseLength+zpd, 1:lic);        %takes off zeropadding before deconvolution
 
 response = decmls(temp, signal, responseLength, lic);

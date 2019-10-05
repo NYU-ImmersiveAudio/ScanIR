@@ -1,4 +1,4 @@
-function response = sweepZap_selectch(audioDeviceInfo, ...
+function response = sweepZap_selectch(IpDeviceInfo, OpDeviceInfo,  ...
     outputChl, inputChl, srate, signalLength, responseLength, numRepeats, low, hi, scale, savewav)
 %function response = fsweepZap(outputChl, inputChl, srate, signalLength, responseLength, numRepeats, low, hi, scale)
 %
@@ -6,7 +6,8 @@ function response = sweepZap_selectch(audioDeviceInfo, ...
 % sinesweep
 %
 % Input:
-%   audioInputDeviceInfo: audio device IO structure
+%   IpDeviceInfo: audio device IO structure
+%   OpDeviceInfo: audio device IO structure
 %   outputChl: array of output channels
 %   inputChl: number of input channels
 %   srate: sampling rate, in Hz
@@ -30,16 +31,16 @@ function response = sweepZap_selectch(audioDeviceInfo, ...
 %   Agnieszka Roginska, August 2007
 % Copyright Music Technology, New York University
 
-if nargin < 11, savewav = 0; end;
-if nargin < 10, scale = .9; end;
-if nargin < 9, hi = 20000; end;
-if nargin < 8, low = 20; end;
-if nargin < 7, numRepeats = 1; end;
-if nargin < 6, responseLength = 2048; end;
-if nargin < 5, signalLength = 2; end;
-if nargin < 4, srate = 44100; end;
-if nargin < 3, inputChl = [1 2]; end;
-if nargin < 2, outputChl = 1; end;
+if nargin < 12, savewav = 0; end
+if nargin < 11, scale = .9; end
+if nargin < 10, hi = 20000; end
+if nargin < 9, low = 20; end
+if nargin < 8, numRepeats = 1; end
+if nargin < 7, responseLength = 2048; end
+if nargin < 6, signalLength = 2; end
+if nargin < 5, srate = 44100; end
+if nargin < 4, inputChl = [1 2]; end
+if nargin < 3, outputChl = 1; end
 if (responseLength <= 0) || (round(responseLength) ~= responseLength)
     error('responseLength must be an integer > 0')
 end
@@ -50,7 +51,7 @@ if (scale <= 0) || (scale > 1)
     error('scale must be > 0 && <= 1')
 end
 
-
+lic = length(inputChl);
 loc = length(outputChl);
 
 signal = gensweep(srate, signalLength, low, hi);
@@ -65,7 +66,7 @@ psig = [zeros(zpd, loc); psig;zeros(zpd, loc)];
 
 
 % first playback/record
-temp = playrec_selectch(audioDeviceInfo, ...
+temp = playrec_selectch(IpDeviceInfo, OpDeviceInfo,  ...
     psig', srate, outputChl, inputChl, (length(psig)+responseLength)/srate);
 
 
@@ -85,16 +86,16 @@ end
 
 i = 1;                                      %repeats and averages for better signal to noise ratio
 while i < numRepeats
-    peat = playrec_selectch(audioDeviceInfo, ...
+    peat = playrec_selectch(IpDeviceInfo, OpDeviceInfo, ...
         psig', srate, outputChl, inputChl, (length(psig)+responseLength)/srate);
     temp = temp+peat;
     i = i + 1;
 end
 temp = temp./numRepeats;
 temp = temp';               % switch back to column vector
-temp = temp(zpd+1:length(signal)+responseLength+zpd, 1:inputChl);        %takes off zeropadding before deconvolution
+temp = temp(zpd+1:length(signal)+responseLength+zpd, 1:lic);        %takes off zeropadding before deconvolution
 
-response = decsweep(temp, signal, inputChl, srate, signalLength, responseLength);
+response = decsweep(temp, signal, lic, srate, signalLength, responseLength);
 
 end
 

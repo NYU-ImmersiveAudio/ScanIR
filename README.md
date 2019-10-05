@@ -17,11 +17,11 @@ ScanIR is an impulse response measurement tool written for MATLAB which streamli
 ### Changelog
 
 ScanIR v2.1:
-- Can now select separate Input/Output interfaces
+- Can now select separate Input/Output interfaces (if sample-rate is compatible)
 - Various bug fixes for MLS and Golay playback
-- Adjustments to the interface
+- Minor Adjustments to the GUI interface
 
-**Due to limitations of PsychPortAudio, it is not anymore possible to change the device sample rate within MATLAB using separate devices. Please set your I/P and O/P devices sample rates from your computer settings, then restart MATLAB**
+**IMPORTANT: Due to limitations of PsychPortAudio, it is not anymore possible to change the device sample rate within MATLAB using separate devices. Please set your I/P and O/P devices sample rates from your computer settings, then restart MATLAB**
 
 ScanIR v2.0:
 -  Redesigned interface

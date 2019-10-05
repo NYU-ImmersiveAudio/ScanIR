@@ -1,4 +1,4 @@
-function signal = playrec_selectch (audioDeviceInfo, out_signal, ...
+function signal = playrec_selectch (IpDeviceInfo, OpDeviceInfo, out_signal, ...
     srate, out_ch, in_ch, rec_len)
 % This function plays the measurement signal and records the response
 %
@@ -29,7 +29,6 @@ function signal = playrec_selectch (audioDeviceInfo, out_signal, ...
 % in_ch:
 % - the number of input channels
 % - each channel up to in_ch will be active for recording
-% - must be an integer
 %
 % e.g. y = playrec_selectch(mysignal, 44100, 1, 1, 3); plays mysignal on
 % channel 1, and records a 3-sec signal
@@ -37,22 +36,22 @@ function signal = playrec_selectch (audioDeviceInfo, out_signal, ...
 % rec_len
 % - how long to record, in seconds
 
-
 [M N] = size(out_signal);
 
 
 % check arguments; provide default values for those not given
 % out_signal must be passed, so an error is thrown if it is not
-if (nargin < 2) error('Must provide an output signal'); end
-if (nargin < 3) srate = 44100; end
-if (nargin < 4) out_ch = [1:M]; end
-if (nargin < 5) in_ch = 1; end
-if (nargin < 6) rec_len = N / srate;
-elseif (nargin > 6) error('Too many inputs to function'); end
+if (nargin < 3) error('Must provide an output signal'); end
+if (nargin < 4) srate = 44100; end
+if (nargin < 5) out_ch = [1:M]; end
+if (nargin < 6) in_ch = 1; end
+if (nargin < 7) rec_len = N / srate;
+elseif (nargin > 7) error('Too many inputs to function'); end
 
 
 % the total number of output channels
-num_out_ch = max(out_ch);
+num_out_ch = length(out_ch);
+in_ch = length(in_ch);
 
 % a zero matrix of size: num_out_ch x N
 out_matrix = zeros(num_out_ch, N);
@@ -61,12 +60,18 @@ out_matrix = zeros(num_out_ch, N);
 % audio data; the rest will be left as silence. this is a work-around
 % because the 'selectchannels' option provided by PsychAudioPort is
 % only supported for MS-Windows
-%
-% out_signal[i] will be played through out_ch[i]
-for i=1:length(out_ch)
-    out_matrix(out_ch(i),1:N) = out_signal(i,1:N);
-end
 
+
+% out_signal[i] will be played through out_ch[i]
+% for i=1:length(out_ch)
+%     out_matrix(out_ch(i),1:N) = out_signal(i,1:N);
+% end
+
+% ----- 10/01/2019 A.Genovese
+% Temporary workaround: IT is assumed that only one channel playback is
+% desired to be used. Hence only the latest O/P channel is filled with data
+out_matrix(out_ch(end),1:N) = out_signal(1,1:N);
+% -----
 
 % if the number of output channels as specified implicitly by out_signal
 % exceeds the explicit number of output channels specified by out_ch,
@@ -94,11 +99,15 @@ end
 
 InitializePsychSound;
 PsychPortAudio('GetDevices');
-pahandle = PsychPortAudio('Open', audioDeviceInfo.DeviceIndex, 3, 0, srate, [num_out_ch, in_ch]);
-PsychPortAudio('FillBuffer', pahandle, out_matrix);
-PsychPortAudio('GetAudioData', pahandle, rec_len);
-PsychPortAudio('Start', pahandle);
+out_pahandle = PsychPortAudio('Open', OpDeviceInfo.DeviceIndex, 1, 0, srate, num_out_ch);
+in_pahandle = PsychPortAudio('Open', IpDeviceInfo.DeviceIndex, 2, 0, srate, in_ch);
+PsychPortAudio('FillBuffer', out_pahandle, out_matrix);
+PsychPortAudio('GetAudioData', in_pahandle, rec_len);
+PsychPortAudio('Start', in_pahandle);
+PsychPortAudio('Start', out_pahandle);
 WaitSecs(rec_len);
-PsychPortAudio('Stop', pahandle,1);
-[signal] = PsychPortAudio('GetAudioData', pahandle);
-PsychPortAudio('Close');
+PsychPortAudio('Stop', in_pahandle, 1);
+PsychPortAudio('Stop', out_pahandle, 1);
+[signal] = PsychPortAudio('GetAudioData', in_pahandle);
+PsychPortAudio('Close', in_pahandle);
+PsychPortAudio('Close', out_pahandle);
