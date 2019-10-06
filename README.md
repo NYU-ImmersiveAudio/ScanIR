@@ -81,7 +81,7 @@ Gabriel Zalles
 Cindy Bui  
 Frederick Scott  
 
-**Other Contributors (GitHub)**
+**Other Contributors (GitHub)**  
 JP-Lisn
 
 ### See Also
