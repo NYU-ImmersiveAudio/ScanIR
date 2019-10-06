@@ -71,17 +71,18 @@ Please refer to the full user manual pdf for learning the full capabilities and 
 
 ### Contributors
 
-**NYU Music and Audio Research Lab:**
-Braxton Boren
-Andrea Genovese
-Agnieszka Roginska
-Charlie Mydlarz
-Julian Vanasse
-Gabriel Zalles
-Cindy Bui
-Frederick Scott
+**NYU Music and Audio Research Lab:**  
+Braxton Boren  
+Andrea Genovese  
+Agnieszka Roginska  
+Charlie Mydlarz  
+Julian Vanasse  
+Gabriel Zalles  
+Cindy Bui  
+Frederick Scott  
 
 **Other Contributors (GitHub)**
+
 JP-Lisn
 
 ### See Also
