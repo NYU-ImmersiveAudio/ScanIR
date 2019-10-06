@@ -22,7 +22,7 @@ ScanIR v2.1:
 - Minor Adjustments to the GUI interface
 - Excitation level control
 
-**IMPORTANT: Due to limitations of PsychPortAudio, it is not anymore possible to change the device sample rate within MATLAB using separate devices. Please set your I/P and O/P devices sample rates from your computer settings, then restart MATLAB**
+**IMPORTANT: Due to limitations of PsychPortAudio, it is not possible to change the device sample rate within ScanIR as it now uses separate I/O controls. Please set your I/P and O/P devices sample rates from your computer settings, then restart MATLAB**
 
 ScanIR v2.0:
 -  Redesigned interface
