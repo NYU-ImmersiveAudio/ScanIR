@@ -82,7 +82,6 @@ Cindy Bui
 Frederick Scott  
 
 **Other Contributors (GitHub)**
-
 JP-Lisn
 
 ### See Also
