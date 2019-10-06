@@ -31,7 +31,7 @@ function varargout = ScanIR_v2(varargin)
 %  Copyright 2011
 
 
-% Last Modified by GUIDE v2.5 05-Oct-2019 19:10:11
+% Last Modified by GUIDE v2.5 05-Oct-2019 22:01:07
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -89,6 +89,7 @@ handles.app.azPositionData = [str2double(get(handles.az_start,'String')) str2dou
 handles.app.elPositionData = [str2double(get(handles.el_start,'String')) str2double(get(handles.el_interval, 'String')) str2double(get(handles.el_end, 'String')) ];
 handles.app.seriesInfo = []; % stores the ID numbers of positions at the end of each series
 handles.app.isBRIR = false; % distinguish HRIR from BRIR
+handles.app.sig_level = 0.6;
 
 handles.hrir_az = []; % row vector of azimuths for HRIR measurements
 handles.hrir_el = []; % row vector of elevations for HRIR measurements
@@ -1254,7 +1255,7 @@ if ( strcmpi (handles.specs.signalType, 'Sine Sweep') || strcmpi (handles.specs.
         recLen,handles.app.numPlays,...
         20, ...
         handles.specs.sampleRate/2, ...
-        .6,  ...
+        handles.app.sig_level,  ...
         savewav);
 elseif ( strcmpi (handles.specs.signalType, 'MLS') )
     % Minimum length sequence
@@ -1266,7 +1267,7 @@ elseif ( strcmpi (handles.specs.signalType, 'MLS') )
         handles.specs.sampleRate,...
         mlsLen,recLen,...
         handles.app.numPlays,...
-        .6,savewav);
+        handles.app.sig_level,savewav);
 elseif ( strcmpi (handles.specs.signalType, 'Golay Codes') || strcmpi (handles.specs.signalType, 'Golay-Codes'))
     % Golay code
     golayLen = nextpow2(handles.app.sigLength * handles.specs.sampleRate + 1);
@@ -1277,7 +1278,7 @@ elseif ( strcmpi (handles.specs.signalType, 'Golay Codes') || strcmpi (handles.s
         handles.specs.sampleRate,...
         golayLen,recLen,...
         handles.app.numPlays,...
-        1,.6,savewav);
+        1,handles.app.sig_level,savewav);
 end
 
 handles.data(handles.app.currID).rawIR = y;
@@ -1823,3 +1824,59 @@ function git_validator_Callback(hObject, eventdata, handles)
 % hObject    handle to git_validator (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+
+
+% --- Executes on slider movement.
+function level_slider_Callback(hObject, eventdata, handles)
+% hObject    handle to level_slider (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'Value') returns position of slider
+%        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
+lev = get(handles.level_slider,'Value');
+handles.app.sig_level = lev;
+set(handles.edit_level,'String',num2str(lev));
+guidata(hObject,handles);
+
+% --- Executes during object creation, after setting all properties.
+function level_slider_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to level_slider (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: slider controls usually have a light gray background.
+if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor',[.9 .9 .9]);
+end
+
+
+
+function edit_level_Callback(hObject, eventdata, handles)
+% hObject    handle to edit_level (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit_level as text
+%        str2double(get(hObject,'String')) returns contents of edit_level as a double
+lev = str2double(get(handles.edit_level,'String'));
+if (lev > 1 || lev < 0 || isnan(lev))
+    warning('Excitation level must be set to a value between 0 and 1');
+    set(handles.edit_level,'String',handles.app.sig_level);
+else
+    set(handles.level_slider,'Value',lev);
+    handles.app.sig_level = lev;
+end
+guidata(hObject,handles);
+
+% --- Executes during object creation, after setting all properties.
+function edit_level_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit_level (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end

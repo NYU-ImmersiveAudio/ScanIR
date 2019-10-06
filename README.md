@@ -20,6 +20,7 @@ ScanIR v2.1:
 - Can now select separate Input/Output interfaces (if sample-rate is compatible)
 - Various bug fixes for MLS and Golay playback
 - Minor Adjustments to the GUI interface
+- Excitation level control
 
 **IMPORTANT: Due to limitations of PsychPortAudio, it is not anymore possible to change the device sample rate within MATLAB using separate devices. Please set your I/P and O/P devices sample rates from your computer settings, then restart MATLAB**
 
@@ -67,6 +68,21 @@ Any compatible step motor of desired resolution should work with the system. The
 
 ### Usage 
 Please refer to the full user manual pdf for learning the full capabilities and features of the tool.
+
+### Contributors
+
+**NYU Music and Audio Research Lab:**
+Braxton Boren
+Andrea Genovese
+Agnieszka Roginska
+Charlie Mydlarz
+Julian Vanasse
+Gabriel Zalles
+Cindy Bui
+Frederick Scott
+
+**Other Contributors (GitHub)**
+JP-Lisn
 
 ### See Also
 ScanIR v2 has been used for the following studies:
