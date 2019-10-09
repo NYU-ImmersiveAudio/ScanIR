@@ -47,10 +47,3 @@ if (strcmp(sweepMethod, 'logarithmic'))
 else
     y = chirp(t,lo,signalLength,hi,'linear',270);
 end
-
-% Small fade-in-out to remove transient artifacts from equipment
-n = 0.05 * srate;
-fade_in = logspace(0,1,n);
-fade_out = logspace(1,0,n);
-y(1:n) = y(1:n).*fade_in;
-y(end-n+1:end) = y(end-n+1:end).*fade_out;
