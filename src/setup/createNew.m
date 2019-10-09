@@ -58,8 +58,8 @@ handles.inMode = 1;  % starts as mono IR
 handles.outMode = 1; % 1 channel output
 handles.signalType = 'Sine Sweep'; % sine sweep
 handles.sigLength = 1; % 1 second
-handles.irLength = 48000; % 1 second IR
-handles.sampleRate = 48000; 
+handles.irLength = 44100; % 1 second IR
+handles.sampleRate = 44100; 
 handles.numInputChls = 1;
 handles.numOutputChls = 1;
 handles.numPlays = 1;
@@ -98,7 +98,7 @@ handles.maxOuts = handles.OpDevInfo.NrOutputChannels;
 handles.text_op_ch.String = num2str(handles.OpDevInfo.NrOutputChannels);
 handles.text_op_sr.String = num2str(handles.OpDevInfo.DefaultSampleRate);
 % Check if compatible
-check_compatibility(hObject, handles);
+handles = check_compatibility(hObject, handles);
 
 % Update handles structure
 guidata(hObject, handles);
@@ -205,6 +205,7 @@ handles.output.numOutputChls = handles.numOutputChls;
 handles.output.outMode = handles.outMode;
 handles.output.maxOuts = handles.maxOuts;
 handles.output.numPlays = handles.numPlays;
+handles.output.system = handles.system;
 try
     handles.output.motor = handles.motor;
 catch
@@ -596,7 +597,7 @@ handles.IpDevInfo = handles.availableIP(ip_idx);
 handles.maxIns = handles.IpDevInfo.NrInputChannels;
 handles.text_ip_ch.String = num2str(handles.IpDevInfo.NrInputChannels);
 handles.text_ip_sr.String = num2str(handles.IpDevInfo.DefaultSampleRate);
-check_compatibility(hObject, handles);
+handles = check_compatibility(hObject, handles);
 guidata(hObject, handles);
 
 
@@ -740,7 +741,7 @@ handles.OpDevInfo = handles.availableOP(op_idx);
 handles.maxOuts = handles.OpDevInfo.NrOutputChannels;
 handles.text_op_ch.String = num2str(handles.OpDevInfo.NrOutputChannels);
 handles.text_op_sr.String = num2str(handles.OpDevInfo.DefaultSampleRate);
-check_compatibility(hObject, handles);
+handles = check_compatibility(hObject, handles);
 guidata(hObject,handles);
 
 
@@ -756,7 +757,7 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
     set(hObject,'BackgroundColor','white');
 end
 
-function check_compatibility(hObject, handles)
+function handles = check_compatibility(hObject, handles)
 sr_in =  handles.IpDevInfo.DefaultSampleRate;
 sr_out = handles.OpDevInfo.DefaultSampleRate;
 if sr_in == sr_out

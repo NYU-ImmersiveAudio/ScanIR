@@ -118,6 +118,7 @@ if ( strcmp(opening, 'createNew') )
     ard = handles.ard_connected;
     save('src/setup/tempfile.mat','ard');
     setup = createNew;
+    handles.app.OS = setup.system;
     handles.app.inMode = setup.inMode;
     handles.specs.signalType = setup.signalType;
     handles.app.sigLength = setup.sigLength;
@@ -1222,7 +1223,9 @@ if (get(handles.savewav_checkbox, 'Value'))
     savewav.dist = str2num(get(handles.dist_edit, 'String'));
     savewav.ID = handles.app.currID;
     savewav.session = handles.sessionName;
-    savewav.dir = ['WavFiles/', handles.sessionName '/'];
+    dirName = handles.sessionName;
+    dirName(ismember(dirName,':')) = '.'; %bug-fix for mkdir
+    savewav.dir = ['WavFiles/', dirName '/'];
     if ~isfolder(savewav.dir)
         mkdir(savewav.dir);
     end
