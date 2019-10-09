@@ -29,6 +29,7 @@ function response = sweepZap_selectch(IpDeviceInfo, OpDeviceInfo,  ...
 %   Frederick S. Scott, August 2007
 % Modified by:
 %   Agnieszka Roginska, August 2007
+%   Andrea Genovese, October 2019
 % Copyright Music Technology, New York University
 
 if nargin < 12, savewav = 0; end
@@ -108,11 +109,11 @@ rsweep = [zeros(.5*srate, lic);sweep;zeros(.5*srate, lic)];         %zeropadding
 rsweep = real(ifft(1./fft(rsweep)));
 la = length(recorded);
 lb = length(rsweep);
-rsweep = [rsweep; zeros(lb-1, lic)];                                %zeropadding before conv
-recorded = [recorded; zeros(la-1, lic)];
+rsweep = [rsweep; zeros(la-1, lic)];                                %zeropadding before conv
+recorded = [recorded; zeros(lb-1, lic)];
 a = fft(rsweep, 2^nextpow2(length(recorded)));                      %much faster than conv function because of pow2's
-b= fft(recorded,  2^nextpow2(length(recorded)));
+b = fft(recorded,  2^nextpow2(length(recorded)));
 y = ifft(a.*b);
-y= y(srate*(signalLength+.5)+1:srate*(signalLength+.5)+responseLength,1:lic);
+y = y(srate*(signalLength+.5)+1:srate*(signalLength+.5)+responseLength,1:lic);
 end
 

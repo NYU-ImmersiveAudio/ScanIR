@@ -19,6 +19,7 @@ function y = gensweep(srate, signalLength, lo, hi, sweepMethod)
 %   Frederick S. Scott, August 2007
 % Modified by:
 %   Agnieszka Roginska, January 2008
+%   Andrea Genovese, October 2019
 %   Copyright Music Technology, New York University
 
 if nargin < 5, sweepMethod = 'logarithmic'; end;
@@ -45,4 +46,11 @@ if (strcmp(sweepMethod, 'logarithmic'))
     y(1:signalLength*srate) = sin((e1/e2)*(exp(e3*e4)-1));
 else
     y = chirp(t,lo,signalLength,hi,'linear',270);
-end;
+end
+
+% Small fade-in-out to remove transient artifacts from equipment
+n = 0.05 * srate;
+fade_in = logspace(0,1,n);
+fade_out = logspace(1,0,n);
+y(1:n) = y(1:n).*fade_in;
+y(end-n+1:end) = y(end-n+1:end).*fade_out;
