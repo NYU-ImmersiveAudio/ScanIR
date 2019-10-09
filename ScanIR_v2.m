@@ -443,7 +443,7 @@ end
 
 % Save file size if raw not desired
 if ~(get(handles.raw_checkbox,'Value'))
-    data.rawIR = [];
+    data(handles.app.currID).rawIR = [];
 end
 
 [filename,pathname] = uiputfile(strcat(handles.sessionName, '.mat'), 'Save...');
