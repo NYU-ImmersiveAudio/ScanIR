@@ -1,4 +1,4 @@
-# ScanIR v2.1
+# ScanIR v2.1.1
 Impulse Response measurement tool for MATLAB.
 
 ScanIR is available through CreativeCommons License.
