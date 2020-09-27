@@ -1,4 +1,4 @@
-# ScanIR v2.1
+# ScanIR v2.1.1
 Impulse Response measurement tool for MATLAB.
 
 ScanIR is available through CreativeCommons License.
@@ -15,6 +15,9 @@ Boren, B., & Roginska, A. (2011, October). [Multichannel impulse response measur
 ScanIR is an impulse response measurement tool written for MATLAB which streamlines the process of generating, emitting and recording an acoustic measurement signal. Several types of measurement signals and recording settings are available for the measurement of Room-Impulse-Responses, Multichannel-Impulse-Responses, Head-Related-Impulse-Responses and others. The program intends to simplify the measurement process and provides the experimenter with the acoustic response data in customizable format. 
 
 ### Changelog
+
+ScanIR v2.1.1
+- Minor GUI corrections
 
 ScanIR v2.1:
 - Can now select separate Input/Output interfaces (if sample-rate is compatible)
