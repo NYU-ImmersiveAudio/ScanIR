@@ -16,6 +16,9 @@ ScanIR is an impulse response measurement tool written for MATLAB which streamli
 
 ### Changelog
 
+ScanIR v2.1.1
+- Minor GUI corrections
+
 ScanIR v2.1:
 - Can now select separate Input/Output interfaces (if sample-rate is compatible)
 - Various bug fixes for MLS and Golay playback
