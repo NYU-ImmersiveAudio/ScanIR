@@ -104,8 +104,9 @@ in_pahandle = PsychPortAudio('Open', IpDeviceInfo.DeviceIndex, 2, 0, srate, in_c
 PsychPortAudio('FillBuffer', out_pahandle, out_matrix);
 PsychPortAudio('GetAudioData', in_pahandle, rec_len);
 PsychPortAudio('Start', in_pahandle);
+WaitSecs(0.1);
 PsychPortAudio('Start', out_pahandle);
-WaitSecs(rec_len);
+WaitSecs(rec_len+0.1);
 PsychPortAudio('Stop', in_pahandle, 1);
 PsychPortAudio('Stop', out_pahandle, 1);
 [signal] = PsychPortAudio('GetAudioData', in_pahandle);

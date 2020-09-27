@@ -94,7 +94,10 @@ while i < numRepeats
 end
 temp = temp./numRepeats;
 temp = temp';               % switch back to column vector
-temp = temp(zpd+1:length(signal)+responseLength+zpd, 1:lic);        %takes off zeropadding before deconvolution
+% 2.1.1 added some time offset to help PsychportAudio deal with buffers)
+offset = 0.1*srate;
+
+temp = temp(zpd+1-offset:length(signal)+responseLength+zpd-offset, 1:lic);        %takes off zeropadding before deconvolution
 
 response = decsweep(temp, signal, lic, srate, signalLength, responseLength);
 
